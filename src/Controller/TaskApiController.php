@@ -6,8 +6,11 @@ namespace App\Controller;
 
 use App\Entity\Task;
 use App\Entity\User;
+use App\Form\TaskType;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -15,12 +18,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\VarDumper\VarDumper;
 
+/**
+ * Class TaskApiController
+ * @package App\Controller
+ * @Route("/api/v1/task")
+ */
 class TaskApiController extends AbstractController
 {
     /**
-     * @Route("/api/v1/tasks/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="task_get_list")
+     * @Route("/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="task_api_get_list")
      * @param User $user
      * @param TaskRepository $taskRepository
      * @param Serializer $serializer
@@ -37,74 +46,76 @@ class TaskApiController extends AbstractController
     }
 
     /**
-     * @Route("/api/v1/task/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="task_get_one")
+     * @Route("/get/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="task_api_get_one")
      * @param Task $task
-     */
-    public function getOne(Task $task)
-    {
-        return new JsonResponse($task);
-    }
-
-
-    /**
-     * @Route("/api/v1/task/", methods={"POST"}, name="task_add")
-     * @param Request $request
-     * @param UserRepository $userRepository
-     * @param TaskRepository $taskRepository
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function add(Request $request, UserRepository $userRepository, TaskRepository $taskRepository, SerializerInterface $serializer)
+    public function getOne(Task $task,SerializerInterface $serializer)
     {
-        $title = $request->get('title', false);
-        $description = $request->get('description', false);
-        $user_id = $request->get('user', false);
-        $status = $request->get('status', false);
+        $task = $serializer->serialize($task, 'json');
+        return new JsonResponse($task,200,[],true);
+    }
 
 
-        if (!$title || !$description || !$status || !$user_id) {
-            return new JsonResponse(['error' => "Il manque des informations"], 500);
+    /**
+     * @Route("/{id}", methods={"POST"}, name="task_api_add")
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function add(Request $request, User $user)
+    {
+        $task = new Task();
+        $task->setUser($user);
+        $task->setCreatedAt(new \DateTime());
+
+        $form = $this->createForm(TaskType::class, $task);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->getDoctrine()->getManager()->persist($task);
+            $this->getDoctrine()->getManager()->flush();
+            return new JsonResponse(['success' => true]);
         }
-        $user = $userRepository->find($user_id);
-        if ($user === null) {
-            return new JsonResponse(['error' => "L'utilisateur est innexistant"], 500);
+
+        return new JsonResponse(['error' => "Erreur lors de la création de la tache"], 500);
+    }
+
+    /**
+     * @Route("/edit/{id}",requirements={"id"="\d+"}, methods={"POST"}, name="task_api_edit")
+     * @param Request $request
+     * @param Task $task
+     * @return JsonResponse
+     */
+    public function edit(Request $request, Task $task)
+    {
+        $form = $this->createForm(TaskType::class, $task);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+            return new JsonResponse(['success' => true]);
         }
+
+        return new JsonResponse(['error' => "Erreur lors de l'édition de la tache"], 500);
+    }
+
+    /**
+     * @Route("/delete/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="task_api_delete")
+     * @param EntityManagerInterface $em
+     * @param Task $task
+     * @return JsonResponse
+     */
+    public function delete(EntityManagerInterface $em, Task $task)
+    {
         try {
-
-            $task = new Task();
-            $task->setTitle($title);
-            $task->setDescription($description);
-            $task->setStatus(Task::Status[$status]);
-            $task->setUser($user);
-            $task->setCreatedAt(new \DateTime());
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($task);
-            $user->addTask($task);
+            $task->setUser(null);
+            $em->remove($task);
             $em->flush();
-        } catch (\Exception $e) {
-            VarDumper::dump($e->getMessage());
-            return new JsonResponse(['error' => "Erreur lors de l'ecriture en base de données"], 500);
+            return new JsonResponse(['success' => true]);
+        } catch (Exception $e) {
+            return new JsonResponse(['errror' => "Erreur lors de la suppression d'une tache."]);
         }
-
-        return $this->list($user, $taskRepository,$serializer);
-    }
-
-    /**
-     * @Route("/api/v1/task/", methods={"PUT"}, name="task_edit")
-     * @param UserRepository $userRepository
-     */
-    public function edit(UserRepository $userRepository)
-    {
-
-    }
-
-    /**
-     * @Route("/api/v1/task/{id}", methods={"DELETE"}, requirements={"id"="\d+"}, name="task_delete")
-     * @param UserRepository $userRepository
-     */
-    public function delete(UserRepository $userRepository)
-    {
-
     }
 }

@@ -18,7 +18,7 @@ class FrontUserController extends AbstractController
     public function index(UserRepository $userRepository)
     {
         return $this->render("front/user/index.html.twig", [
-            'users' => $userRepository->createQueryBuilder('u')->orderBy('u.id')->getQuery()->getResult()
+            'users' => $userRepository->createQueryBuilder('u')->orderBy('u.id','desc')->getQuery()->getResult()
         ]);
     }
 

@@ -1,155 +1,103 @@
-import moment from "moment";
+import {popError} from "./app";
+import {doIt} from "./app";
 
-const Swal = require('sweetalert2');
 //Affichage de la liste des taches
-$(document).on('click', '.getlist', function () {
-    let $t = $(this);
-    let url = $t.attr('href');
+function userDrawList(url){
     $.ajax({
         url: url,
         type: 'GET',
         dataType:'json',
         success: function (data) {
-            genTable(data);
+            userGenTable(data);
         },
         error: popError
     });
     return false;
+}
+//récuperations de liste
+$(document).on('getlistUser', function (data, userid) {
+    return userDrawList("/api/v1/user/");
+});
+//suppression d'une tache
+$(document).on('click', '.delete-user-btn', function () {
+    if(confirm('La suppression d\'un utilisateur et de ses taches est définitive, voulez vous continuer ?')) {
+        let $t = $(this);
+        let url = $t.attr('href');
+        doIt(url);
+        userDrawList("/api/v1/user/")
+    }
+    return false;
 });
 
-// ajout d'une tache
-$(document).on('click', '.add-task-btn', function () {
+// récuperation du formulaire d'ajout d'une tache
+$(document).on('click', '.add-user-btn', function () {
     let $t = $(this);
-    let url = $t.attr('href');
-    let user = $t.data('user');
-    let Task = {
-        title: null,
-        description: null,
-        status: null,
-        user: null
-    };
-    Swal.fire({
-        title: "Titre de la nouvelle tache",
-        input: 'text',
-        inputPlaceholder: "Titre de la tache",
-        showCancelButton: true,
-        inputValidator: (value) => {
-            if (!value) {
-                return 'Le titre est obligatoire !'
-            }
-        }
-    }).then((result) => {
-        if (result !== undefined) {
-            Task.title = result.value;
-            Task.user = user;
-            Swal.fire({
-                title: "Description de la tache",
-                input: 'textarea',
-                inputPlaceholder: "Description de la tache",
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'La description est obligatoire !'
-                    }
-                }
-            }).then((result) => {
-                if (result !== undefined) {
-                    Task.description = result.value;
-                    Swal.fire({
-                        title: "Etat de la tache",
-                        input: 'select',
-                        inputOptions: {
-                            debutee: 'Débutée',
-                            en_cours: 'En cours',
-                            terminee: 'Terminée',
-                        },
-                        showCancelButton: true,
-                        inputValidator: (value) => {
-                            return new Promise((resolve) => {
-                                if (value !== undefined) {
-                                    resolve()
-                                } else {
-                                    resolve('Il faut sélectionner une valeur')
-                                }
-                            })
-                        }
-                    }).then((result) => {
-                        console.log(result)
-                        if (result !== undefined) {
-                            Task.status = result.value;
-                            $.ajax({
-                                url: url,
-                                data: Task,
-                                type: 'POST',
-                                dataType:'json',
-                                success: function (data) {
-                                    genTable(data);
-                                },
-                                error: popError
-                            });
-                        }
-                    });
-                }
-            });
+    let $modal =$("#modalForm");
+    $.ajax({
+        url: "/user/new",
+        dataType:'html',
+        type:'get',
+        success:function(data){
+            $modal.find('.modal-title').html("Nouvel utilisateur");
+            $modal.find('.modal-body').html(data);
+            $modal.modal("show");
+        },
+        error: function(){
+            Swal.fire("Impossible de charger le formulaire");
         }
     });
     return false;
 });
 
-// template d'erreur
-function popError(data) {
-   let resp = data.responseJSON;
-    Swal.fire({
-        title: "Erreur",
-        text: resp.error !== undefined ? resp.error : "Erreur lors de la création de la tache.",
-        icon: 'error'
-    });
-}
+// récuperation du formulaire d'édition d'une tache
+// $(document).on('click', '.edit-user-btn', function () {
+//     let $t = $(this);
+//     let $modal =$("#modalForm");
+//
+//     $.ajax({
+//         url: "/user/"+$t.data('task')+"/edit",
+//         dataType:'html',
+//         type:'get',
+//         success:function(data){
+//             $modal.find('.modal-title').html("Modifier une tache");
+//             $modal.find('.modal-body').html(data);
+//             $modal.modal("show");
+//         },
+//         error: function(){
+//             Swal.fire("Impossible de charger le formulaire");
+//         }
+//     });
+//     return false;
+// });
 
 // generation du contenu de la table
-function genTable(data) {
-    let taskTable = $("#tasks tbody");
-    taskTable.find('tr').remove();
+function userGenTable(data) {
+    let usersTable = $("#users tbody");
+    usersTable.find('tr').remove();
     if (data !== undefined && data.length > 0) {
         for (let i = 0; i < data.length; i++) {
-            let task = data[i];
-            taskTable.append(taskTemplateLine(task));
+            let user = data[i];
+            usersTable.append(userTemplateLine(user));
         }
     } else {
-        taskTable.append(emptyTemplate());
+        usersTable.append(userEmptyTemplate());
     }
 }
 
 // generation d'un ligne contenant le resultat si aps d'objets retournés.
-function emptyTemplate() {
-    return "<tr><td colspan='5'>Aucune tache pour le moment</td></tr>";
-
+function userEmptyTemplate() {
+    return "<tr><td colspan='4'>Aucun utilisateur pour le moment</td></tr>";
 }
-
-//recuperation du status sous forme de string
-function getStatusStr(str){
-    switch (str) {
-        case '10':
-            return 'Débutée';
-        case '20':
-            return "En cours";
-        case '30':
-            return "Terminé";
-        default:
-            return "Inconnu";
-    }
-}
-
 //generation du template d'une ligne
-function taskTemplateLine(task) {
+function userTemplateLine(user) {
     return "<tr>" +
-        "<td>" + task.title + "</td>" +
-        "<td>" + task.description + "</td>" +
-        "<td>" + moment(task.created_at,"YYYY-MM-DDTHH:mm:ss+00:00").format('DD/MM/YYYY hh:mm') + "</td>" +
-        "<td>" + getStatusStr(task.status) + "</td>" +
+        "<td>" + user.id + "</td>" +
+        "<td>" + user.name + "</td>" +
+        "<td>" + user.email + "</td>" +
         "<td>" +
-        "<a class='btn btn-sm btn-primary edit-task-btn' data-task='"+task.id+"' href='#'><i class='fas fa-edit'></i></a>" +
-        "<a class='btn btn-sm btn-danger delete-task-btn' data-task='"+task.id+"' href='#'><i class='fas fa-trash'></i></a>" +
+        "<a href='/api/v1/tast/"+user.id+"' class='getList btn btn-sm btn-secondary' title='Voir les taches'><i class='fas fa-list'></i></a>"+
+        "<a data-user='"+ user.id +"' href=\"#\" class=\"add-task-btn btn btn-sm btn-success\" title=\"Ajouter une tache\"><i class=\"fas fa-plus\"></i></a>"+
+        "<a class='btn btn-sm btn-danger delete-user-btn'  href='/api/v1/user/delete/"+user.id+"' title='Supprimer un utilisateur et ses taches'><i class='fas fa-trash'></i></a>" +
         "</td>" +
         "</tr>"
 }

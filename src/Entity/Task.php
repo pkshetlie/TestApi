@@ -10,11 +10,9 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 class Task
 {
-    const Status = [
-        'debutee'=> 10,
-        'en_cours'=> 20,
-        'terminee'=> 30,
-    ];
+    const DEBUTE = 10;
+    const EN_COURS = 20;
+    const TERMINEE = 30;
 
     /**
      * @ORM\Id()
@@ -25,7 +23,7 @@ class Task
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="tasks")
-     * @ORM\JoinColumn(name="user_id",nullable=false)
+     * @ORM\JoinColumn(name="user_id",nullable=false, referencedColumnName="id",fieldName="id")
      */
     private $user;
 
