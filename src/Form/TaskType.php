@@ -30,8 +30,7 @@ class TaskType extends AbstractType
                     'Terminée' => Task::TERMINEE,
                 ],
                 'method'=>'PUT'
-
-            ]);;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
