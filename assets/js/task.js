@@ -2,7 +2,7 @@ import moment from "moment";
 import {popError} from "./app";
 import {doIt} from "./app";
 
-//Affichage de la liste des taches
+//Affichage de la liste des tâches
 function taskDrawList(url){
     $.ajax({
         url: url,
@@ -26,9 +26,9 @@ $(document).on('click', '.getList', function () {
     return taskDrawList(url);
 });
 
-//suppression d'une tache
+//suppression d'une tâche
 $(document).on('click', '.delete-task-btn', function () {
-    if(confirm('La suppresison d\'une tache est définitive, voulez vous continuer ?')) {
+    if(confirm('La suppresison d\'une tâche est définitive, voulez vous continuer ?')) {
         let $t = $(this);
         let url = $t.attr('href');
         doIt(url);
@@ -37,7 +37,7 @@ $(document).on('click', '.delete-task-btn', function () {
     return false;
 });
 
-// récuperation du formulaire d'ajout d'une tache
+// récuperation du formulaire d'ajout d'une tâche
 $(document).on('click', '.add-task-btn', function () {
     let $t = $(this);
     let $modal =$("#modalForm");
@@ -46,7 +46,7 @@ $(document).on('click', '.add-task-btn', function () {
         dataType:'html',
         type:'get',
         success:function(data){
-            $modal.find('.modal-title').html("Nouvelle tache");
+            $modal.find('.modal-title').html("Nouvelle tâche");
             $modal.find('.modal-body').html(data);
             $modal.modal("show");
         },
@@ -57,7 +57,7 @@ $(document).on('click', '.add-task-btn', function () {
     return false;
 });
 
-// récuperation du formulaire d'édition d'une tache
+// récuperation du formulaire d'édition d'une tâche
 $(document).on('click', '.edit-task-btn', function () {
     let $t = $(this);
     let $modal =$("#modalForm");
@@ -67,7 +67,7 @@ $(document).on('click', '.edit-task-btn', function () {
         dataType:'html',
         type:'get',
         success:function(data){
-            $modal.find('.modal-title').html("Modifier une tache");
+            $modal.find('.modal-title').html("Modifier une tâche");
             $modal.find('.modal-body').html(data);
             $modal.modal("show");
         },
@@ -94,7 +94,7 @@ function taskGenTable(data) {
 
 // generation d'un ligne contenant le resultat si aps d'objets retournés.
 function taskEmptyTemplate() {
-    return "<tr><td colspan='5'>Aucune tache pour le moment</td></tr>";
+    return "<tr><td colspan='5'>Aucune tâche pour le moment</td></tr>";
 }
 
 //recuperation du status sous forme de string

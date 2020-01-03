@@ -20,7 +20,7 @@ export function popError(data) {
     let resp = data.responseJSON;
     Swal.fire({
         title: "Erreur",
-        text: resp.error !== undefined ? resp.error : "Erreur lors de la création de la tache.",
+        text: resp.error !== undefined ? resp.error : "Erreur lors de la création de la tâche.",
         icon: 'error'
     });
 }

@@ -1,7 +1,7 @@
 import {popError} from "./app";
 import {doIt} from "./app";
 
-//Affichage de la liste des taches
+//Affichage de la liste des tâches
 function userDrawList(url){
     $.ajax({
         url: url,
@@ -18,9 +18,9 @@ function userDrawList(url){
 $(document).on('getlistUser', function (data, userid) {
     return userDrawList("/api/v1/user/");
 });
-//suppression d'une tache
+//suppression d'une tâche
 $(document).on('click', '.delete-user-btn', function () {
-    if(confirm('La suppression d\'un utilisateur et de ses taches est définitive, voulez vous continuer ?')) {
+    if(confirm('La suppression d\'un utilisateur et de ses tâches est définitive, voulez vous continuer ?')) {
         let $t = $(this);
         let url = $t.attr('href');
         doIt(url);
@@ -29,7 +29,7 @@ $(document).on('click', '.delete-user-btn', function () {
     return false;
 });
 
-// récuperation du formulaire d'ajout d'une tache
+// récuperation du formulaire d'ajout d'une tâche
 $(document).on('click', '.add-user-btn', function () {
     let $t = $(this);
     let $modal =$("#modalForm");
@@ -49,7 +49,7 @@ $(document).on('click', '.add-user-btn', function () {
     return false;
 });
 
-// récuperation du formulaire d'édition d'une tache
+// récuperation du formulaire d'édition d'une tâche
 // $(document).on('click', '.edit-user-btn', function () {
 //     let $t = $(this);
 //     let $modal =$("#modalForm");
@@ -59,7 +59,7 @@ $(document).on('click', '.add-user-btn', function () {
 //         dataType:'html',
 //         type:'get',
 //         success:function(data){
-//             $modal.find('.modal-title').html("Modifier une tache");
+//             $modal.find('.modal-title').html("Modifier une tâche");
 //             $modal.find('.modal-body').html(data);
 //             $modal.modal("show");
 //         },
@@ -95,9 +95,9 @@ function userTemplateLine(user) {
         "<td>" + user.name + "</td>" +
         "<td>" + user.email + "</td>" +
         "<td>" +
-        "<a href='/api/v1/tast/"+user.id+"' class='getList btn btn-sm btn-secondary' title='Voir les taches'><i class='fas fa-list'></i></a>"+
-        "<a data-user='"+ user.id +"' href=\"#\" class=\"add-task-btn btn btn-sm btn-success\" title=\"Ajouter une tache\"><i class=\"fas fa-plus\"></i></a>"+
-        "<a class='btn btn-sm btn-danger delete-user-btn'  href='/api/v1/user/delete/"+user.id+"' title='Supprimer un utilisateur et ses taches'><i class='fas fa-trash'></i></a>" +
+        "<a href='/api/v1/task/"+user.id+"' class='getList btn btn-sm btn-secondary' title='Voir les tâches'><i class='fas fa-list'></i></a>"+
+        "<a data-user='"+ user.id +"' href=\"#\" class=\"add-task-btn btn btn-sm btn-success\" title=\"Ajouter une tâche\"><i class=\"fas fa-plus\"></i></a>"+
+        "<a class='btn btn-sm btn-danger delete-user-btn'  href='/api/v1/user/delete/"+user.id+"' title='Supprimer un utilisateur et ses tâches'><i class='fas fa-trash'></i></a>" +
         "</td>" +
         "</tr>"
 }

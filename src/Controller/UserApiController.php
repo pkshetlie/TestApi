@@ -21,7 +21,6 @@ class UserApiController extends AbstractController
 {
     /**
      * @Route("/", methods={"GET"}, requirements={"id"="\d+"}, name="user_api_get_list")
-     * @param User $user
      * @param UserRepository $userRepository
      * @param SerializerInterface $serializer
      * @return JsonResponse
@@ -85,7 +84,7 @@ class UserApiController extends AbstractController
 //            return new JsonResponse(['success' => true]);
 //        }
 //
-//        return new JsonResponse(['error' => "Erreur lors de l'édition de la tache"], 500);
+//        return new JsonResponse(['error' => "Erreur lors de l'édition de la tâche"], 500);
 //    }
 
     /**

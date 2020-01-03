@@ -32,7 +32,7 @@ class TaskApiController extends AbstractController
      * @Route("/{id}", methods={"GET"}, requirements={"id"="\d+"}, name="task_api_get_list")
      * @param User $user
      * @param TaskRepository $taskRepository
-     * @param Serializer $serializer
+     * @param SerializerInterface $serializer
      * @return JsonResponse
      */
     public function list(User $user, TaskRepository $taskRepository, SerializerInterface $serializer)
@@ -57,7 +57,6 @@ class TaskApiController extends AbstractController
         return new JsonResponse($task,200,[],true);
     }
 
-
     /**
      * @Route("/{id}", methods={"POST"}, name="task_api_add")
      * @param Request $request
@@ -79,7 +78,7 @@ class TaskApiController extends AbstractController
             return new JsonResponse(['success' => true]);
         }
 
-        return new JsonResponse(['error' => "Erreur lors de la création de la tache"], 500);
+        return new JsonResponse(['error' => "Erreur lors de la création de la tâche"], 500);
     }
 
     /**
@@ -98,7 +97,7 @@ class TaskApiController extends AbstractController
             return new JsonResponse(['success' => true]);
         }
 
-        return new JsonResponse(['error' => "Erreur lors de l'édition de la tache"], 500);
+        return new JsonResponse(['error' => "Erreur lors de l'édition de la tâche"], 500);
     }
 
     /**
@@ -115,7 +114,7 @@ class TaskApiController extends AbstractController
             $em->flush();
             return new JsonResponse(['success' => true]);
         } catch (Exception $e) {
-            return new JsonResponse(['errror' => "Erreur lors de la suppression d'une tache."]);
+            return new JsonResponse(['errror' => "Erreur lors de la suppression d'une tâche."]);
         }
     }
 }
